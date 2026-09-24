@@ -19,12 +19,20 @@ export const predictLoanDefault = async (data) => {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Unable to generate prediction. Please check the entered information and try again.');
+      throw new Error(errorData.detail || `Server error (${response.status}): Unable to generate prediction.`);
     }
 
     return await response.json();
   } catch (error) {
     console.error('API Prediction Error:', error);
+    if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+      throw new Error(
+        `Cannot connect to Backend API at "${BASE_URL}". ` +
+        (rawBaseUrl.includes('localhost') 
+          ? 'Make sure your FastAPI server is running: "uvicorn backend.main:app --reload --port 8000"'
+          : 'Please check your deployed backend URL and ensure VITE_API_URL is configured in Vercel.')
+      );
+    }
     throw error;
   }
 };
@@ -43,7 +51,7 @@ export const getModelInfo = async () => {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch model information.');
+      throw new Error(`Failed to fetch model information (${response.status}).`);
     }
 
     return await response.json();

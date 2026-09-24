@@ -13,16 +13,13 @@ class PredictionService:
             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             project_root = os.path.dirname(base_dir)
             
-            # Check root directory first, then backend/model/
-            root_model = os.path.join(project_root, "loan_default_model.pkl")
-            backend_model = os.path.join(base_dir, "model", "loan_default_model.pkl")
-            
-            if os.path.exists(root_model):
-                model_path = root_model
-            elif os.path.exists(backend_model):
-                model_path = backend_model
-            else:
-                model_path = root_model
+            candidates = [
+                os.path.join(base_dir, "model", "loan_default_model.pkl"),
+                os.path.join(project_root, "loan_default_model.pkl"),
+                os.path.join(os.getcwd(), "backend", "model", "loan_default_model.pkl"),
+                os.path.join(os.getcwd(), "loan_default_model.pkl"),
+            ]
+            model_path = next((p for p in candidates if os.path.exists(p)), candidates[0])
 
         self.model_path = model_path
         self.model = None

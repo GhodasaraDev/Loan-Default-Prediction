@@ -19,29 +19,14 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# Configure CORS for local development and production Vercel domains
-allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
-origins = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
-
-if allowed_origins_env:
-    for origin in allowed_origins_env.split(","):
-        cleaned = origin.strip()
-        if cleaned and cleaned not in origins:
-            origins.append(cleaned)
-
-allow_all = "*" in origins or allowed_origins_env.strip() == "*"
-
+# Configure CORS to allow all frontend origins (localhost, Vercel domains, etc.)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"] if allow_all else origins,
-    allow_credentials=not allow_all,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Register prediction router under /api

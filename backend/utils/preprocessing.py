@@ -51,15 +51,13 @@ def get_preprocessor():
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         project_root = os.path.dirname(base_dir)
         
-        backend_model_path = os.path.join(base_dir, "model", "preprocessor.pkl")
-        root_model_path = os.path.join(project_root, "preprocessor.pkl")
-        
-        if os.path.exists(backend_model_path):
-            preprocessor_path = backend_model_path
-        elif os.path.exists(root_model_path):
-            preprocessor_path = root_model_path
-        else:
-            preprocessor_path = backend_model_path
+        candidates = [
+            os.path.join(base_dir, "model", "preprocessor.pkl"),
+            os.path.join(project_root, "preprocessor.pkl"),
+            os.path.join(os.getcwd(), "backend", "model", "preprocessor.pkl"),
+            os.path.join(os.getcwd(), "preprocessor.pkl"),
+        ]
+        preprocessor_path = next((p for p in candidates if os.path.exists(p)), candidates[0])
 
         if not os.path.exists(preprocessor_path):
             raise FileNotFoundError(f"Preprocessor asset not found at {preprocessor_path}")
